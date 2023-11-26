@@ -313,6 +313,23 @@ if (isset($_POST['Save'])) {
     }
 }
 
+if (isset($_POST['ContactUs'])) {
+    $Name = $conn->real_escape_string($_POST['Name']);
+    $Email = $conn->real_escape_string($_POST['Email']);
+    $Subject = $conn->real_escape_string($_POST['Subject']);
+    $Message = $conn->real_escape_string($_POST['Message']);
+
+    if (sendEmail('dace.phage@gmail.com', $Subject, 'Senders Name: ' . $Name . '<br>Senders Email: ' . $Email . '<br><br>' . $Message)) {
+        $response['status'] = 'success';
+        $response['message'] = 'Email Sent!';
+        $response['redirect'] = '../index.html';
+    } else {
+        $response['status'] = 'error';
+        $response['message'] = 'Unable to Send Email!';
+    }
+
+}
+
 if (isset($_POST['Approve'])) {
     try {
         $PaymentID = $conn->real_escape_string($_POST['Approve']);
@@ -320,11 +337,15 @@ if (isset($_POST['Approve'])) {
         $AssistedBy = $conn->real_escape_string($_POST['AssistedBy']);
         $ReleasedBy = $conn->real_escape_string($_POST['ReleasedBy']);
 
-        // Your SQL query
         $query = "UPDATE payments SET Remarks=?, AssistedBy=?, ReleasedBy=?, Status='Processing' WHERE id=?";
-
-        // Use the execute_query function
         $result = $conn->execute_query($query, [$Remarks, $AssistedBy, $ReleasedBy, $PaymentID]);
+
+        $query = "SELECT * FROM payments WHERE `id`=?";
+        $result = $conn->execute_query($query, [$PaymentID]);
+        while ($row = $result->fetch_object()) {
+            $query2 = "INSERT INTO paymentshistory(`UserID`,`PaymentNo`,`ReferenceNo`,`Total`, `Status`) VALUES(?,?,?,?,?)";
+            $result2 = $conn->execute_query($query2, [$row->UserID, $row->PaymentNo, $row->ReferenceNo, $row->Total, 'Processing']);
+        }
 
         if ($result) {
             $response['status'] = 'success';
@@ -345,13 +366,17 @@ if (isset($_POST['ToClaim'])) {
         $AssistedBy = $conn->real_escape_string($_POST['AssistedBy']);
         $ReleasedBy = $conn->real_escape_string($_POST['ReleasedBy']);
 
-        // Your SQL query
         $query = "UPDATE payments SET Remarks=?, AssistedBy=?, ReleasedBy=?, `Status`='Completed' WHERE `id`=?";
-
-        // Use the execute_query function
         $result = $conn->execute_query($query, [$Remarks, $AssistedBy, $ReleasedBy, $PaymentID]);
 
-        
+        $query = "SELECT * FROM payments WHERE `id`=?";
+        $result = $conn->execute_query($query, [$PaymentID]);
+        while ($row = $result->fetch_object()) {
+            $query2 = "INSERT INTO paymentshistory(`UserID`,`PaymentNo`,`ReferenceNo`,`Total`, `Status`) VALUES(?,?,?,?,?)";
+            $result2 = $conn->execute_query($query2, [$row->UserID, $row->PaymentNo, $row->ReferenceNo, $row->Total, 'Completed']);
+        }
+
+
 
         if ($result) {
             $response['status'] = 'success';
@@ -365,24 +390,6 @@ if (isset($_POST['ToClaim'])) {
     }
 }
 
-
-if (isset($_POST['ContactUs'])) {
-    $Name = $conn->real_escape_string($_POST['Name']);
-    $Email = $conn->real_escape_string($_POST['Email']);
-    $Subject = $conn->real_escape_string($_POST['Subject']);
-    $Message = $conn->real_escape_string($_POST['Message']);
-
-    if (sendEmail('dace.phage@gmail.com', $Subject, 'Senders Name: ' . $Name . '<br>Senders Email: ' . $Email . '<br><br>' . $Message)) {
-        $response['status'] = 'success';
-        $response['message'] = 'Email Sent!';
-        $response['redirect'] = '../index.html';
-    } else {
-        $response['status'] = 'error';
-        $response['message'] = 'Unable to Send Email!';
-    }
-
-}
-
 if (isset($_POST['Request'])) {
     $id = $conn->real_escape_string($_POST['Request']);
 
@@ -392,6 +399,9 @@ if (isset($_POST['Request'])) {
 
     // Insert into payments table
     $query = "INSERT INTO payments(`UserID`,`PaymentNo`,`ReferenceNo`,`Total`) VALUES(?,?,?,?)";
+    $result = $conn->execute_query($query, [$id, $PaymentNo, $ReferenceNo, $Total]);
+
+    $query = "INSERT INTO paymentshistory(`UserID`,`PaymentNo`,`ReferenceNo`,`Total`) VALUES(?,?,?,?)";
     $result = $conn->execute_query($query, [$id, $PaymentNo, $ReferenceNo, $Total]);
 
     if ($result) {
@@ -469,11 +479,23 @@ if (isset($_POST['AddUser'])) {
         $result = $conn->execute_query($query, [$FirstName, $MiddleName, $LastName, $Username, $HashedPassword, $Email, $Phone, $Address, $Role, $Password]);
         if ($result) {
 
-            sendEmail($Email, 'Your Registrar System Account Information', "Hello " . $FirstName . " " . $LastName . ",\n\nYour account has been created. Here are your login details:\n\nUsername: " . $Username . "\nPassword: " . $Password . "\n\nYou can now use these credentials to log in to your account.\n\nIf you have any questions or need further assistance, please don't hesitate to contact us.\n\nThank you for choosing our service!\n\nSincerely, ISAT-U Admin\nISAT-U");
+            $Subject = 'Your Registrar System Account Information';
+
+            $Message = "Hello " . $FirstName . " " . $LastName . ",<br><br>";
+            $Message .= "Your account has been created. Here are your login details:<br><br>";
+            $Message .= "Username: " . $Username . "<br>";
+            $Message .= "Password: " . $Password . "<br><br>";
+            $Message .= "You can now use these credentials to log in to your account.<br><br>";
+            $Message .= "If you have any questions or need further assistance, please don't hesitate to contact us.<br><br>";
+            $Message .= "Thank you for choosing our service!<br><br>";
+            $Message .= "Sincerely, ISAT-U Admin<br>";
+            $Message .= "ISAT-U";
+
+            sendEmail($Email, $Subject, $Message);
 
             $response['status'] = 'success';
             $response['message'] = 'New User Inserted!';
-            $response['redirect'] = '../Staff/users.php';
+            $response['redirect'] = $_SESSION['Role'] == 'Admin' ? '../Admin/users.php' : '../Staff/users.php';
         } else {
 
             $response['status'] = 'error';
@@ -508,7 +530,7 @@ if (isset($_POST['UpdateUser'])) {
         if ($result) {
             $response['status'] = 'success';
             $response['message'] = 'User Updated!';
-            $response['redirect'] = '../Staff/users.php';
+            $response['redirect'] = $_SESSION['Role'] == 'Admin' ? '../Admin/users.php' : '../Staff/users.php';
         } else {
             $response['status'] = 'error';
             $response['message'] = 'Update failed!';
@@ -529,7 +551,7 @@ if (isset($_GET['DeleteUser'])) {
 
             $response['status'] = 'success';
             $response['message'] = 'User Deleted!';
-            $response['redirect'] = '../Staff/users.php';
+            $response['redirect'] = $_SESSION['Role'] == 'Admin' ? '../Admin/users.php' : '../Staff/users.php';
         } else {
 
             $response['status'] = 'error';
@@ -555,12 +577,36 @@ if (isset($_GET['ResetPassword'])) {
 
             $response['status'] = 'success';
             $response['message'] = 'Reset Password Sent!';
-            $response['redirect'] = '../Staff/users.php';
+            $response['redirect'] = $_SESSION['Role'] == 'Admin' ? '../Admin/users.php' : '../Staff/users.php';
         }
     } else {
 
         $response['status'] = 'error';
         $response['message'] = 'Adding failed!';
+    }
+}
+// Modify User
+if (isset($_POST['AddAnnouncement'])) {
+    $Title = $conn->real_escape_string($_POST['Title']);
+    $Description = $conn->real_escape_string($_POST['Description']);
+    $Author = $conn->real_escape_string($_POST['Author']);
+
+    $query = "INSERT INTO `announcements`(`Title`, `Description`, `Author`) VALUES(?,?,?)";
+    try {
+        $result = $conn->execute_query($query, [$Title, $Description, $Author]);
+        if ($result) {
+
+            $response['status'] = 'success';
+            $response['message'] = 'New Announcement Posted!';
+            $response['redirect'] = $_SESSION['Role'] == 'Admin' ? '../Admin/contents.php' : '../Staff/contents.php';
+        } else {
+
+            $response['status'] = 'error';
+            $response['message'] = 'Adding failed!';
+        }
+    } catch (Exception $e) {
+        $response['status'] = 'error';
+        $response['message'] = $e->getMessage();
     }
 }
 

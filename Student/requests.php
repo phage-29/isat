@@ -14,7 +14,7 @@ require_once "components/sidebar.php";
         </h1>
         <nav>
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
                 <li class="breadcrumb-item">Pages</li>
                 <li class="breadcrumb-item active">
                     <?= $page ?>
@@ -24,6 +24,48 @@ require_once "components/sidebar.php";
     </div><!-- End Page Title -->
 
     <section class="section">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Recent requests</h5>
+                <table class="table datatable">
+                    <thead>
+                        <tr>
+                            <th scope="col">Date</th>
+                            <th scope="col">Payment No.</th>
+                            <th scope="col">Total</th>
+                            <th scope="col">Reference No.</th>
+                            <th scope="col">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        $query = $conn->query("SELECT * FROM payments where UserID=$acc->id ORDER BY id DESC LIMIT 0,5");
+                        while ($row = $query->fetch_object()) {
+                            ?>
+                            <tr>
+                                <td class="text-center" scope="row">
+                                    <?= date_format(date_create($row->CreatedAt), 'd/m/Y') ?>
+                                </td>
+                                <td class="">
+                                    <?= $row->PaymentNo ?>
+                                </td>
+                                <td class="text-end">
+                                    <?= $row->Total ?>
+                                </td>
+                                <td class="text-center">
+                                    <?= $row->ReferenceNo ?>
+                                </td>
+                                <td class="text-center">
+                                    <?= $row->Status == "Pending" ? '<span class="badge rounded-pill bg-warning">For Approval</span>' : ($row->Status == "Processing" ? '<span class="badge rounded-pill bg-primary">Processing</span>' : ($row->Status == "Completed" ? '<span class="badge rounded-pill bg-success">To Claim</span>' : '<span class="badge rounded-pill bg-danger">Failed</span>')) ?>
+                                </td>
+                            </tr>
+                            <?php
+                        }
+                        ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title text-center">OFFICE OF THE UNIVERSITY REGISTRAR AND ADMISSION</h5>
@@ -69,31 +111,31 @@ require_once "components/sidebar.php";
                 </div>
                 <hr>
                 <form action="../includes/process.php" method="POST">
+
                     <div class="row">
-                        <h5 class="card-title">Requests (Please Check the Following)</h5>
-                        <?php
-                        $query = "SELECT * FROM documents";
-                        $result = $conn->execute_query($query);
-                        while ($row = $result->fetch_object()) {
-                            ?>
-                            <div class="col-lg-6 mb-3">
-                                <div class="form-check">
-                                    <input class="form-check-input document-checkbox" type="checkbox"
-                                        value="<?= $row->id ?>" id="document_<?= $row->id ?>"
-                                        name="document_<?= $row->id ?>" data-document-name="<?= $row->Document ?>"
-                                        data-document-price="<?= $row->Price ?>">
-                                    <label class="form-check-label" for="document_<?= $row->id ?>">
-                                        <?= $row->Document ?> (
-                                        <?= number_format($row->Price, 2) ?> php)
-                                    </label>
-                                </div>
-                            </div>
+                        <div class="col-lg-6">
+                            <h5 class="card-title">Requests (Please Check the Following)</h5>
                             <?php
-                        }
-                        ?>
-                    </div>
-                    <hr>
-                    <div class="row">
+                            $query = "SELECT * FROM documents";
+                            $result = $conn->execute_query($query);
+                            while ($row = $result->fetch_object()) {
+                                ?>
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input document-checkbox" type="checkbox"
+                                            value="<?= $row->id ?>" id="document_<?= $row->id ?>"
+                                            name="document_<?= $row->id ?>" data-document-name="<?= $row->Document ?>"
+                                            data-document-price="<?= $row->Price ?>">
+                                        <label class="form-check-label" for="document_<?= $row->id ?>">
+                                            <?= $row->Document ?> (
+                                            <?= number_format($row->Price, 2) ?> php)
+                                        </label>
+                                    </div>
+                                </div>
+                                <?php
+                            }
+                            ?>
+                        </div>
                         <div class="col-lg-6">
                             <h5 class="card-title">Purpose:</h5>
                             <div class="row">
@@ -108,28 +150,6 @@ require_once "components/sidebar.php";
                                                 id="purpose_<?= $row->id ?>" name="purpose_<?= $row->id ?>">
                                             <label class="form-check-label" for="purpose_<?= $row->id ?>">
                                                 <?= $row->Purpose ?>
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <?php
-                                }
-                                ?>
-                            </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <h5 class="card-title">Requirements to be submitted:</h5>
-                            <div class="row">
-                                <?php
-                                $query = "SELECT * FROM requirements";
-                                $result = $conn->execute_query($query);
-                                while ($row = $result->fetch_object()) {
-                                    ?>
-                                    <div class="col-lg-12 mb-3">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" value="<?= $row->id ?>"
-                                                id="requirement_<?= $row->id ?>" name="requirement_<?= $row->id ?>">
-                                            <label class="form-check-label" for="requirement_<?= $row->id ?>">
-                                                <?= $row->Requirement ?>
                                             </label>
                                         </div>
                                     </div>
@@ -172,9 +192,11 @@ require_once "components/sidebar.php";
                                 <div class="input-group mb-3">
                                     <span class="input-group-text" id="inputGroup-sizing-default">Total Amount</span>
                                     <input type="number" class="form-control" aria-label="Sizing example input"
-                                        aria-describedby="inputGroup-sizing-default" id="input-total-amount" value="0.00" name="Total" readonly>
+                                        aria-describedby="inputGroup-sizing-default" id="input-total-amount"
+                                        value="0.00" name="Total" readonly>
                                 </div>
-                                <p class="text-start text-muted"><em>Enter the Reference Number to confirm your request.</em></p>
+                                <p class="text-start text-muted"><em>Enter the Reference Number to confirm your
+                                        request.</em></p>
                                 <div class="input-group mb-3">
                                     <span class="input-group-text" id="inputGroup-sizing-default">Reference No.</span>
                                     <input type="text" class="form-control" aria-label="Sizing example input"

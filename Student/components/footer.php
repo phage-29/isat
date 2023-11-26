@@ -61,6 +61,66 @@ if (!is_null($acc->ChangePassword)) {
     </script>
     <?php
 }
+if (is_null($acc->ChangePassword)) {
+    if ($_SESSION['Role'] == "Student") {
+        $query = "SELECT * FROM students WHERE UserID = ?";
+        $result = $conn->execute_query($query, [$acc->id]);
+        if ($result->num_rows == 0) {
+            ?>
+
+            <!-- Modal -->
+            <div class="modal fade" id="StudentProfileModal" data-bs-backdrop="static" tabindex="-1"
+                aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Student Information</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <!-- Form inside the modal -->
+                            <form action="../includes/process.php" method="POST">
+                                <div class="mb-3">
+                                    <label class="form-label">ID Number</label>
+                                    <input type="text" class="form-control" name="IDNo" required />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Course</label>
+                                    <input type="text" class="form-control" name="Course" required />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Year</label>
+                                    <input type="text" class="form-control" name="Year" required />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Section</label>
+                                    <input type="text" class="form-control" name="Section" required />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Academic Status</label>
+                                    <input type="text" class="form-control" name="AcademicStatus" required />
+                                </div>
+                                <div class="mb-3 text-end">
+                                    <input type="hidden" name="Student" value="<?= $acc->id ?>" />
+                                    <a href="../includes/logout.php" class="btn btn-secondary">Logout</a>
+                                    <button type="submit" class="btn btn-primary">Submit</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    var myModal = new bootstrap.Modal(document.getElementById('StudentProfileModal'));
+                    myModal.toggle();
+                    myModal.show();
+                });
+            </script>
+            <?php
+        }
+    }
+}
 ?>
 <?php
 if (isset($_GET['PaymentNo'])) {
@@ -142,38 +202,46 @@ if (isset($_GET['PaymentNo'])) {
                             <div class="input-group mb-3">
                                 <span class="input-group-text" id="inputGroup-sizing-default">Remarks</span>
                                 <textarea type="text" class="form-control" aria-label="Sizing example input"
-                                    aria-describedby="inputGroup-sizing-default" disabled><?= $transaction->Remarks ?></textarea>
+                                    aria-describedby="inputGroup-sizing-default"
+                                    disabled><?= $transaction->Remarks ?></textarea>
                             </div>
                         </div>
                         <div class=" col-lg-6">
                             <div class="input-group mb-3">
                                 <span class="input-group-text" id="inputGroup-sizing-default">Assisted By</span>
-                                <input type="text" class="form-control" aria-label="Sizing example input"
-                                    aria-describedby="inputGroup-sizing-default" value="<?= $transaction->AssistedBy ?>" disabled>
+                                <select class="form-control" name="AssistedBy" disabled>
+                                    <option value="0" selected>--</option>
+                                    <?php
+                                    $result = $conn->execute_query('SELECT * FROM users WHERE Role=?', ['Staff']);
+                                    while ($row = $result->fetch_object()) {
+                                        ?>
+                                        <option value="<?= $row->id ?>" <?= $transaction->AssistedBy == $row->id ? 'selected' : '' ?>>
+                                            <?= $row->FirstName ?>
+                                        </option>
+                                        <?php
+                                    }
+                                    ?>
+                                </select>
                             </div>
                         </div>
-                        <!-- <div class=" col-lg-6">
-                            <div class="input-group mb-3">
-                                <span class="input-group-text" id="inputGroup-sizing-default">Schedule Date of
-                                    Release</span>
-                                <input type="text" class="form-control" aria-label="Sizing example input"
-                                    aria-describedby="inputGroup-sizing-default" value="<?= $transaction->DateReleased ?>" disabled>
-                            </div>
-                        </div> -->
                         <div class=" col-lg-6">
                             <div class="input-group mb-3">
                                 <span class="input-group-text" id="inputGroup-sizing-default">Released By</span>
-                                <input type="text" class="form-control" aria-label="Sizing example input"
-                                    aria-describedby="inputGroup-sizing-default" value="<?= $transaction->ReleasedBy ?>" disabled>
+                                <select class="form-control" name="ReleasedBy" disabled>
+                                    <option value="0" selected>--</option>
+                                    <?php
+                                    $result = $conn->execute_query('SELECT * FROM users WHERE Role=?', ['Staff']);
+                                    while ($row = $result->fetch_object()) {
+                                        ?>
+                                        <option value="<?= $row->id ?>" <?= $transaction->AssistedBy == $row->id ? 'selected' : '' ?>>
+                                            <?= $row->FirstName ?>
+                                        </option>
+                                        <?php
+                                    }
+                                    ?>
+                                </select>
                             </div>
                         </div>
-                        <!-- <div class=" col-lg-6">
-                            <div class="input-group mb-3">
-                                <span class="input-group-text" id="inputGroup-sizing-default">Date</span>
-                                <input type="text" class="form-control" aria-label="Sizing example input"
-                                    aria-describedby="inputGroup-sizing-default" value="<?= $transaction->DateScheduled ?>" disabled>
-                            </div>
-                        </div> -->
                     </div>
                     <div class="mb-3 text-end">
                         <input type="hidden" name="ChangePassword" />

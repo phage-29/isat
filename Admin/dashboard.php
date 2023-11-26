@@ -1,6 +1,6 @@
 <?php
 $page = "Dashboard";
-$Role = "Staff";
+$Role = "Admin";
 require_once "../includes/session.php";
 require_once "components/header.php";
 require_once "components/topbar.php";
@@ -120,7 +120,7 @@ require_once "components/sidebar.php";
                   </thead>
                   <tbody>
                     <?php
-                    $result = $conn->query("SELECT p.*, u.*, s.* FROM payments p LEFT JOIN users u ON p.UserID = u.id LEFT JOIN students s ON s.UserID = u.id");
+                    $result = $conn->query("SELECT p.*, u.*, s.* FROM payments p LEFT JOIN users u ON p.UserID = u.id LEFT JOIN students s ON s.UserID = u.id ORDER BY UpdatedAt DESC");
                     while ($row = $result->fetch_object()) {
                       ?>
                       <tr>

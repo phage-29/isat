@@ -1,6 +1,6 @@
 <?php
 $page = "User Management";
-$Role = "Staff";
+$Role = "Admin";
 require_once "../includes/session.php";
 require_once "components/header.php";
 require_once "components/topbar.php";
@@ -229,6 +229,10 @@ require_once "components/sidebar.php";
                                             <a class='del-btn btn btn-warning btn-sm rounded-0 mx-1'
                                                 href="../includes/process.php?ResetPassword=<?= $row->id ?>"><i
                                                     class="bi bi-key"></i></a>
+
+                                            <a class='del-btn btn btn-danger btn-sm rounded-0 mx-1'
+                                                href="../includes/process.php?DeleteUser=<?= $row->id ?>"><i
+                                                    class="bi bi-trash"></i></a>
 
                                         </td>
                                     </tr>
