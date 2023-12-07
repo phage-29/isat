@@ -246,7 +246,15 @@ if (isset($_GET['PaymentNo'])) {
                     <div class="mb-3 text-end">
                         <input type="hidden" name="ChangePassword" />
                         <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <!-- <button type="submit" class="btn btn-danger">Cancel</button> -->
+                        
+                        <?php
+                        if ($transaction->Status == 'Completed') {
+                            ?>
+                            <button type="submit" class="btn btn-outline-success"
+                                onclick="location='../includes/process.php?claimed=<?= $_GET['PaymentNo'] ?>'">Claimed</button>
+                            <?php
+                        }
+                        ?>
                     </div>
                 </div>
             </div>

@@ -16,11 +16,13 @@ function sendEmail($sendTo, $subject, $content)
     $mail->Port = 587;
     $mail->SMTPAuth = true;
     $mail->Username = 'phpmailer720@gmail.com';
-    $mail->Password = 'gqqwrfsekxkkkuwl';
+    $mail->Password = 'lwxivnogauggglig';
     $mail->SMTPSecure = 'tls';
     $mail->isHTML(true);
     $mail->setFrom('phpmailer720@gmail.com', 'ISAT-U Administrator');
-    $mail->addAddress($sendTo);
+    foreach ($sendTo as $recipient) {
+        $mail->addAddress($recipient);
+    }
     $mail->Subject = $subject;
     $mail->Body = $content;
 

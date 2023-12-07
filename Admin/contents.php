@@ -96,8 +96,7 @@ require_once "components/sidebar.php";
                                         <?= $row->Title ?>
                                         <div class="float-end">
                                             <button class="btn text-primary" data-bs-toggle="collapse"
-                                                data-bs-target="#collapseAddAnnouncement"
-                                                onclick="updAnnouncement('<?= $row->Title ?>','<?= $row->Description ?>')"><i
+                                                data-bs-target="#collapseAddAnnouncement" onclick="updAnnouncement('<?= $row->Title ?>','<?= $row->Description ?>')"><i
                                                     class="bi bi-pencil-square"></i></button>
                                             <button class="btn text-danger"><i class="bi bi-trash"></i></button>
                                         </div>
@@ -124,13 +123,11 @@ require_once "components/sidebar.php";
                             </div>
                         </div><!-- End Recent Sales -->
                         <script>
-                            function updAnnouncement(title, description) {
+                            function updAnnouncement(title,description) {
                                 document.getElementById('Title').value = title;
+                                document.getElementById('quill-editor').html = description;
 
-                                // Set the content of the Quill editor
-                                quill.root.innerHTML = description;
                             }
-
                         </script>
                     </div>
                 </div>

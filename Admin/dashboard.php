@@ -140,7 +140,7 @@ require_once "components/sidebar.php";
                           <?= $row->Total ?>
                         </td>
                         <td>
-                          <?= $row->Status == "Pending" ? '<span class="badge rounded-pill bg-warning">For Approval</span>' : ($row->Status == "Processing" ? '<span class="badge rounded-pill bg-primary">Processing</span>' : ($row->Status == "Completed" ? '<span class="badge rounded-pill bg-success">To Claim</span>' : '<span class="badge rounded-pill bg-danger">Failed</span>')) ?>
+                        <?= $row->Status=="Pending"?'<span class="badge rounded-pill bg-warning">For Approval</span>':($row->Status=="Processing"?'<span class="badge rounded-pill bg-primary">Processing</span>':($row->Status=="Completed"?'<span class="badge rounded-pill bg-success">To Claim</span>':($row->Status=="Claimed"?'<span class="badge rounded-pill bg-info">Claimed</span>':'<span class="badge rounded-pill bg-danger">Failed</span>'))) ?>
                         </td>
                       </tr>
                       <?php

@@ -148,7 +148,7 @@ require_once "components/sidebar.php";
                                         <?= $row->Title ?>
                                         <div class="float-end">
                                             <button class="btn text-primary"><i class="bi bi-pencil-square"></i></button>
-                                            <button class="btn text-danger"><i class="bi bi-trash"></i></button>
+                                            <!-- <button class="btn text-danger"><i class="bi bi-trash"></i></button> -->
                                         </div>
                                     </h2>
                                     <span class="text-muted">Author:

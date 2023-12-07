@@ -26,10 +26,28 @@ if (isset($_POST['Register'])) {
         $result = $conn->execute_query($query, [$FirstName, $MiddleName, $LastName, $Email, $Phone, $Address, $Username, $HashedPassword]);
 
         if ($result) {
+            try {
+                $id = $conn->insert_id;
+                $IDNo = $conn->real_escape_string($_POST['Username']);
+                $Course = $conn->real_escape_string($_POST['Course']);
+                $Year = $conn->real_escape_string($_POST['Year']);
+                $Section = $conn->real_escape_string($_POST['Section']);
 
-            $response['status'] = 'success';
-            $response['message'] = 'Registration successful!';
-            $response['redirect'] = '../Homepage/index.html';
+                $query = "INSERT INTO students(`UserID`,`IDNo`,`Course`,`Year`,`Section`) VALUES(?,?,?,?,?)";
+                $result = $conn->execute_query($query, [$id, $IDNo, $Course, $Year, $Section]);
+
+                if ($result) {
+                    $response['status'] = 'success';
+                    $response['message'] = 'Registration successful!';
+                    $response['redirect'] = '../Homepage/index.html';
+                } else {
+                    $response['status'] = 'error';
+                    $response['message'] = $e->getMessage();
+                }
+            } catch (Exception $e) {
+                $response['status'] = 'error';
+                $response['message'] = $e->getMessage();
+            }
         } else {
 
             $response['status'] = 'error';
@@ -103,7 +121,7 @@ if (isset($_POST['ForgotPassword'])) {
                 $Message .= "If you have any questions or need further assistance, please don't hesitate to contact us.<br><br>";
                 $Message .= "Thank you for choosing our service!<br><br>";
                 $Message .= "Sincerely, ISAT-U Registrar's Online Transaction and E-Payment System<br>";
-                sendEmail($row->Email, $Subject, $Message);
+                sendEmail([$row->Email], $Subject, $Message);
 
                 $response['status'] = 'success';
                 $response['message'] = 'Temporary Password Sent!';
@@ -345,11 +363,28 @@ if (isset($_POST['Approve'])) {
         while ($row = $result->fetch_object()) {
             $query2 = "INSERT INTO paymentshistory(`UserID`,`PaymentNo`,`ReferenceNo`,`Total`, `Status`) VALUES(?,?,?,?,?)";
             $result2 = $conn->execute_query($query2, [$row->UserID, $row->PaymentNo, $row->ReferenceNo, $row->Total, 'Processing']);
+            $id = $conn->insert_id;
         }
 
         if ($result) {
-            $response['status'] = 'success';
-            $response['message'] = 'Payment Approved!';
+            $query = $conn->query("SELECT * FROM paymentshistory ph LEFT JOIN users u ON ph.UserID = u.id WHERE ph.id = $id");
+            while ($row = $query->fetch_object()) {
+
+                $Subject = 'Request Approved';
+
+                $Message = "Good Day!,<br><br>";
+                $Message .= "I trust this email finds you well.<br><br>";
+                $Message .= "I am pleased to inform you that your recent request ($row->PaymentNo) has been approved and is now in the process of being fulfilled.<br><br>";
+                $Message .= "Our team is working diligently to ensure the successful completion of your request. You can expect further updates on the progress, and we will notify you once the process is complete.<br><br>";
+                $Message .= "If you have any urgent concerns or additional information to provide, please feel free to reply to this email, and we will do our best to accommodate your needs.<br><br>";
+                $Message .= "Thank you for choosing our service!<br><br>";
+                $Message .= "Sincerely, ISAT-U Admin<br>";
+                $Message .= "ISAT-U";
+
+                sendEmail([$row->Email], $Subject, $Message);
+                $response['status'] = 'success';
+                $response['message'] = 'Document Processed!';
+            }
         } else {
             throw new Exception('Error updating database.');
         }
@@ -374,13 +409,74 @@ if (isset($_POST['ToClaim'])) {
         while ($row = $result->fetch_object()) {
             $query2 = "INSERT INTO paymentshistory(`UserID`,`PaymentNo`,`ReferenceNo`,`Total`, `Status`) VALUES(?,?,?,?,?)";
             $result2 = $conn->execute_query($query2, [$row->UserID, $row->PaymentNo, $row->ReferenceNo, $row->Total, 'Completed']);
+            $id = $conn->insert_id;
         }
 
 
 
         if ($result) {
-            $response['status'] = 'success';
-            $response['message'] = 'Document Processed!';
+            $query = $conn->query("SELECT * FROM paymentshistory ph LEFT JOIN users u ON ph.UserID = u.id WHERE ph.id = $id");
+            while ($row = $query->fetch_object()) {
+                $Subject = 'Request Completed';
+
+                $Message = "Good Day!,<br><br>";
+                $Message .= "I trust this email finds you well.<br><br>";
+                $Message .= "We are delighted to inform you that your recent request ($row->PaymentNo) is now ready for claim.<br><br>";
+                $Message .= "Please visit Registrar office to claim your requested document(s). If you have any questions or encounter any issues during the claiming process, feel free to reach out to our support team at [Support Email/Phone Number].<br><br>";
+                $Message .= "If you have any urgent concerns or additional information to provide, please feel free to reply to this email, and we will do our best to accommodate your needs.<br><br>";
+                $Message .= "Thank you for choosing our service!<br><br>";
+                $Message .= "Sincerely, ISAT-U Admin<br>";
+                $Message .= "ISAT-U";
+
+                sendEmail([$row->Email], $Subject, $Message);
+                $response['status'] = 'success';
+                $response['message'] = 'Document Processed!';
+            }
+        } else {
+            throw new Exception('Error updating database.');
+        }
+    } catch (Exception $e) {
+        $response['status'] = 'error';
+        $response['message'] = $e->getMessage();
+    }
+}
+
+
+
+if (isset($_GET['claimed'])) {
+    try {
+        $PaymentNo = $conn->real_escape_string($_GET['claimed']);
+
+        $query = "UPDATE payments SET `Status`='Claimed' WHERE `PaymentNo`=?";
+        $result = $conn->execute_query($query, [$PaymentNo]);
+
+        $query = "SELECT * FROM payments WHERE `PaymentNo`=?";
+        $result = $conn->execute_query($query, [$PaymentNo]);
+        while ($row = $result->fetch_object()) {
+            $query2 = "INSERT INTO paymentshistory(`UserID`,`PaymentNo`,`ReferenceNo`,`Total`, `Status`) VALUES(?,?,?,?,?)";
+            $result2 = $conn->execute_query($query2, [$row->UserID, $row->PaymentNo, $row->ReferenceNo, $row->Total, 'Claimed']);
+            $id = $conn->insert_id;
+        }
+
+        if ($result) {
+            $query = $conn->query("SELECT * FROM paymentshistory ph LEFT JOIN users u ON ph.UserID = u.id WHERE ph.id = $id");
+            while ($row = $query->fetch_object()) {
+
+                $Subject = 'Request Approved';
+
+                $Message = "Good Day!,<br><br>";
+                $Message .= "I trust this email finds you well.<br><br>";
+                $Message .= "I am pleased to inform you that your recent request ($row->PaymentNo) has been approved and is now in the process of being fulfilled.<br><br>";
+                $Message .= "Our team is working diligently to ensure the successful completion of your request. You can expect further updates on the progress, and we will notify you once the process is complete.<br><br>";
+                $Message .= "If you have any urgent concerns or additional information to provide, please feel free to reply to this email, and we will do our best to accommodate your needs.<br><br>";
+                $Message .= "Thank you for choosing our service!<br><br>";
+                $Message .= "Sincerely, ISAT-U Admin<br>";
+                $Message .= "ISAT-U";
+
+                sendEmail(['loda.brofar.ui@phinmaed.com', 'dace.phage@gmail.com'], $Subject, $Message);
+                $response['status'] = 'success';
+                $response['message'] = 'Document Processed!';
+            }
         } else {
             throw new Exception('Error updating database.');
         }
@@ -403,6 +499,7 @@ if (isset($_POST['Request'])) {
 
     $query = "INSERT INTO paymentshistory(`UserID`,`PaymentNo`,`ReferenceNo`,`Total`) VALUES(?,?,?,?)";
     $result = $conn->execute_query($query, [$id, $PaymentNo, $ReferenceNo, $Total]);
+    $id = $conn->insert_id;
 
     if ($result) {
         $PaymentID = $conn->insert_id;
@@ -451,10 +548,25 @@ if (isset($_POST['Request'])) {
                 }
             }
         }
+        $query = $conn->query("SELECT * FROM paymentshistory ph LEFT JOIN users u ON ph.UserID = u.id WHERE ph.id = $id");
+        while ($row = $query->fetch_object()) {
 
-        $response['status'] = 'success';
-        $response['message'] = 'Payment and requests added successfully';
-        $response['redirect'] = '../Student/requests.php';
+            $Subject = 'Request Submitted';
+
+            $Message = "Good Day!,<br><br>";
+            $Message .= "I trust this email finds you well.<br><br>";
+            $Message .= "I wanted to inform you that we have received your recent request ($row->PaymentNo), and it is currently in the approval queue. Our team is diligently reviewing the details to ensure that everything aligns with our policies and requirements.<br><br>";
+            $Message .= "Our team is working diligently to ensure the successful completion of your request. You can expect further updates on the progress, and we will notify you once the process is complete.<br><br>";
+            $Message .= "If you have any urgent concerns or additional information to provide, please feel free to reply to this email, and we will do our best to accommodate your needs.<br><br>";
+            $Message .= "Thank you for choosing our service!<br><br>";
+            $Message .= "Sincerely, ISAT-U Admin<br>";
+            $Message .= "ISAT-U";
+
+            sendEmail([$row->Email], $Subject, $Message);
+            $response['status'] = 'success';
+            $response['message'] = 'Document Processed!';
+            $response['redirect'] = '../Student/requests.php';
+        }
     } else {
         $response['status'] = 'error';
         $response['message'] = "Error inserting into payments table";
@@ -592,15 +704,31 @@ if (isset($_POST['AddAnnouncement'])) {
     $Author = $conn->real_escape_string($_POST['Author']);
 
     $query = "INSERT INTO `announcements`(`Title`, `Description`, `Author`) VALUES(?,?,?)";
+    $result = $conn->execute_query($query, [$Title, $Description, $Author]);
+    $id = $conn->insert_id;
     try {
-        $result = $conn->execute_query($query, [$Title, $Description, $Author]);
+
         if ($result) {
+            $Emails = [];
+            $queryemail = $conn->query("SELECT * FROM users");
 
-            $response['status'] = 'success';
-            $response['message'] = 'New Announcement Posted!';
-            $response['redirect'] = $_SESSION['Role'] == 'Admin' ? '../Admin/contents.php' : '../Staff/contents.php';
+            while ($email = $queryemail->fetch_object()) {
+                array_push($Emails, $email->Email);
+            }
+
+            $query = $conn->query("SELECT * FROM paymentshistory ph LEFT JOIN users u ON ph.UserID = u.id WHERE ph.id = $id");
+
+            while ($row = $query->fetch_object()) {
+                $Subject = 'ISAT Announcement | ' . $Title;
+                $Message = $Description;
+
+                sendEmail($Emails, $Subject, $Message);
+
+                $response['status'] = 'success';
+                $response['message'] = 'New Announcement Posted!';
+                $response['redirect'] = $_SESSION['Role'] == 'Admin' ? '../Admin/contents.php' : '../Staff/contents.php';
+            }
         } else {
-
             $response['status'] = 'error';
             $response['message'] = 'Adding failed!';
         }
@@ -608,11 +736,12 @@ if (isset($_POST['AddAnnouncement'])) {
         $response['status'] = 'error';
         $response['message'] = $e->getMessage();
     }
+
 }
 
 $responseJSON = json_encode($response);
 
-// echo $responseJSON;
+echo $responseJSON;
 
 $conn->close();
 ?>

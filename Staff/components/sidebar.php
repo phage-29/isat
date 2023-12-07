@@ -23,12 +23,12 @@
                 <span>Request Review</span>
             </a>
         </li><!-- End Profile Page Nav -->
-        <li class="nav-item">
+        <!-- <li class="nav-item">
             <a class="nav-link collapsed" href="analytics.php">
                 <i class="bi bi-bar-chart"></i>
                 <span>Analytics</span>
             </a>
-        </li><!-- End Profile Page Nav -->
+        </li> -->
 
         <li class="nav-item">
             <a class="nav-link collapsed" href="contents.php">

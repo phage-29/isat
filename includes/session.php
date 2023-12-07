@@ -9,6 +9,7 @@ if (isset($_SESSION["Username"]) || !empty($_SESSION["Username"])) {
         $result = $conn->execute_query($query, [$_SESSION["Username"], $_SESSION["Role"]]);
         $acc = $result->fetch_object();
         $_SESSION['id'] = $acc->id;
+        $_SESSION['Email'] = $acc->Email;
         if ($_SESSION['Role'] == 'Student') {
             $query = "SELECT * FROM `students` WHERE `UserID`=?";
             $result = $conn->execute_query($query, [$acc->id]);

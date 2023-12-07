@@ -26,22 +26,13 @@ CREATE TABLE `announcements` (
   `id` int NOT NULL AUTO_INCREMENT,
   `Title` varchar(100) NOT NULL,
   `Description` mediumtext NOT NULL,
-  `Author` int NOT NULL,
+  `Author` varchar(100) NOT NULL,
   `CreatedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `UpdatedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `announcements`
---
-
-LOCK TABLES `announcements` WRITE;
-/*!40000 ALTER TABLE `announcements` DISABLE KEYS */;
-/*!40000 ALTER TABLE `announcements` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `documents`
@@ -61,16 +52,6 @@ CREATE TABLE `documents` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `documents`
---
-
-LOCK TABLES `documents` WRITE;
-/*!40000 ALTER TABLE `documents` DISABLE KEYS */;
-INSERT INTO `documents` VALUES (1,'Transcript of Recors','-',30.00),(2,'Certification','-',30.00),(3,'Re-issuance of diploma/certificate','-',100.00),(4,'Form 137-A','-',30.00),(5,'Authentication of Academic Records','-',30.00),(6,'Report Card','-',10.00),(7,'Certificate of Registration','-',30.00),(8,'Certification, Authentication & Verification','-',30.00),(9,'Certificate of Transfer Credential','-',25.00),(10,'Report of Grades','-',30.00);
-/*!40000 ALTER TABLE `documents` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `faqs`
 --
 
@@ -87,15 +68,6 @@ CREATE TABLE `faqs` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `faqs`
---
-
-LOCK TABLES `faqs` WRITE;
-/*!40000 ALTER TABLE `faqs` DISABLE KEYS */;
-/*!40000 ALTER TABLE `faqs` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `payments`
 --
 
@@ -109,7 +81,7 @@ CREATE TABLE `payments` (
   `ReferenceNo` varchar(45) NOT NULL,
   `Method` enum('G Cash','Finance') NOT NULL DEFAULT 'G Cash',
   `Total` varchar(45) NOT NULL,
-  `Status` enum('Pending','Processing','Completed','Failed') NOT NULL DEFAULT 'Pending',
+  `Status` enum('Pending','Processing','Completed','Failed','Claimed') NOT NULL DEFAULT 'Pending',
   `Remarks` varchar(255) DEFAULT NULL,
   `AssistedBy` int DEFAULT NULL,
   `ReleasedBy` int DEFAULT NULL,
@@ -121,17 +93,36 @@ CREATE TABLE `payments` (
   UNIQUE KEY `id_UNIQUE` (`id`),
   UNIQUE KEY `PaymentNo_UNIQUE` (`PaymentNo`),
   KEY `payments_users_idx` (`UserID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `payments`
+-- Table structure for table `paymentshistory`
 --
 
-LOCK TABLES `payments` WRITE;
-/*!40000 ALTER TABLE `payments` DISABLE KEYS */;
-/*!40000 ALTER TABLE `payments` ENABLE KEYS */;
-UNLOCK TABLES;
+DROP TABLE IF EXISTS `paymentshistory`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `paymentshistory` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `UserID` int NOT NULL,
+  `PaymentNo` varchar(45) NOT NULL,
+  `ReferenceNo` varchar(45) NOT NULL,
+  `Method` enum('G Cash','Finance') NOT NULL DEFAULT 'G Cash',
+  `Total` varchar(45) NOT NULL,
+  `Status` enum('Pending','Processing','Completed','Failed','Claimed') NOT NULL DEFAULT 'Pending',
+  `Remarks` varchar(255) DEFAULT NULL,
+  `AssistedBy` int DEFAULT NULL,
+  `ReleasedBy` int DEFAULT NULL,
+  `DateReleased` date DEFAULT NULL,
+  `DateScheduled` date DEFAULT NULL,
+  `CreatedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `UpdatedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `payments_users_idx` (`UserID`)
+) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `purposes`
@@ -148,16 +139,6 @@ CREATE TABLE `purposes` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `purposes`
---
-
-LOCK TABLES `purposes` WRITE;
-/*!40000 ALTER TABLE `purposes` DISABLE KEYS */;
-INSERT INTO `purposes` VALUES (1,'For Employment'),(2,'For Board Examination'),(3,'For Dismissal'),(4,'For Enrolment'),(5,'Scholarship Requirements'),(6,'For Evaluation');
-/*!40000 ALTER TABLE `purposes` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `requests`
 --
 
@@ -172,17 +153,8 @@ CREATE TABLE `requests` (
   `RequirementID` int DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `requests`
---
-
-LOCK TABLES `requests` WRITE;
-/*!40000 ALTER TABLE `requests` DISABLE KEYS */;
-/*!40000 ALTER TABLE `requests` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `requirements`
@@ -199,16 +171,6 @@ CREATE TABLE `requirements` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `requirements`
---
-
-LOCK TABLES `requirements` WRITE;
-/*!40000 ALTER TABLE `requirements` DISABLE KEYS */;
-INSERT INTO `requirements` VALUES (1,'Clearance'),(2,'School ID'),(3,'2x2 ID Picture'),(4,'Form 137-A/OTR'),(5,'Authorization Letter'),(6,'SPA or Notarized Authorization Letter'),(7,'Affidavit');
-/*!40000 ALTER TABLE `requirements` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `students`
 --
 
@@ -222,22 +184,12 @@ CREATE TABLE `students` (
   `Course` varchar(45) NOT NULL,
   `Year` varchar(45) NOT NULL,
   `Section` varchar(45) NOT NULL,
-  `AcademicStatus` enum('Active','Undergraduate','Graduate') NOT NULL,
+  `AcademicStatus` enum('Active','Undergraduate','Graduate') NOT NULL DEFAULT 'Active',
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`),
   UNIQUE KEY `IDNo_UNIQUE` (`IDNo`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `students`
---
-
-LOCK TABLES `students` WRITE;
-/*!40000 ALTER TABLE `students` DISABLE KEYS */;
-INSERT INTO `students` VALUES (5,1,'04-1920-04571','BS ITs','4TH','A12','Active'),(6,5,'2020-3563-A','BTLED ICT','4TH','4A','Active');
-/*!40000 ALTER TABLE `students` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `users`
@@ -262,18 +214,8 @@ CREATE TABLE `users` (
   UNIQUE KEY `id_UNIQUE` (`id`),
   UNIQUE KEY `Email_UNIQUE` (`Email`),
   UNIQUE KEY `Username_UNIQUE` (`Username`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `users`
---
-
-LOCK TABLES `users` WRITE;
-/*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'Juan','G.','Dela Cruz','dace.phage@gmail.com','09818098637','Iloilo City','staff','$2y$10$CjNZAZIwfo9mc/recAK5SuAPPnksm75D76edHQQqtaizTStHosQye','Staff',NULL),(5,'Pretchelle','Esgrina','Catubig','pretchelle.catubig@students.isatu.edu.ph','09517041602','Salngan, Oton, Iloilo City','2020-3563-A','$2y$10$LqtgzaLlCXgbCv8dtVqR5uRDwn9PjKpzoBVWX/80t.GA69iKhOSJi','Student',NULL);
-/*!40000 ALTER TABLE `users` ENABLE KEYS */;
-UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -284,4 +226,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-11-14 10:05:45
+-- Dump completed on 2023-12-07  9:15:46
