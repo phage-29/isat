@@ -32,6 +32,9 @@
 
     <!-- Template Main CSS File -->
     <link href="assets/css/style.css" rel="stylesheet">
+<script src="
+https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js
+"></script>
 
     <!-- =======================================================
   * Template Name: NiceAdmin

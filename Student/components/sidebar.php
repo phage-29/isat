@@ -39,7 +39,12 @@
                 <span>Notifications</span>
             </a>
         </li><!-- End Profile Page Nav -->
-
+<li class="nav-item">
+    <a class="nav-link collapsed" href="calendar.php">
+        <i class="bi bi-calendar"></i>
+        <span>Calendar</span>
+    </a>
+</li><!-- End Calendar Page Nav -->
     </ul>
 
 </aside><!-- End Sidebar-->

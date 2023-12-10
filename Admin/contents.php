@@ -52,7 +52,7 @@ require_once "components/sidebar.php";
                                         <div class="col-lg-12 mb-5">
                                             <label for="Description" class="form-label">Description <span
                                                     class="text-danger">*</span></label>
-                                            <div class="quill-editor-full" id="quill-editor"></div>
+                                            <div class="quill-editor-full"></div>
                                             <input type="hidden" id="quill-content" name="Description" />
                                             <script>
                                                 document.addEventListener('DOMContentLoaded', function () {
@@ -96,7 +96,8 @@ require_once "components/sidebar.php";
                                         <?= $row->Title ?>
                                         <div class="float-end">
                                             <button class="btn text-primary" data-bs-toggle="collapse"
-                                                data-bs-target="#collapseAddAnnouncement" onclick="updAnnouncement('<?= $row->Title ?>','<?= $row->Description ?>')"><i
+                                                data-bs-target="#collapseAddAnnouncement"
+                                                onclick="updAnnouncement('<?= $row->Title ?>','<?= $row->Description ?>')"><i
                                                     class="bi bi-pencil-square"></i></button>
                                             <button class="btn text-danger"><i class="bi bi-trash"></i></button>
                                         </div>
@@ -123,10 +124,9 @@ require_once "components/sidebar.php";
                             </div>
                         </div><!-- End Recent Sales -->
                         <script>
-                            function updAnnouncement(title,description) {
+                            function updAnnouncement(title, description) {
                                 document.getElementById('Title').value = title;
-                                document.getElementById('quill-editor').html = description;
-
+                                document.getElementById('quill-editor').innerHTML = description;
                             }
                         </script>
                     </div>
