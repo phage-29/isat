@@ -738,7 +738,59 @@ if (isset($_POST['AddAnnouncement'])) {
     }
 
 }
+if (isset($_POST['UpdateAnnouncement'])) {
+    $Title = $conn->real_escape_string($_POST['Title']);
+    $Description = $conn->real_escape_string($_POST['Description']);
+    $AnnouncementID = $conn->real_escape_string($_POST['UpdateAnnouncement']);
 
+    $query = "UPDATE `announcements` SET `Title`=?, `Description`=?, `Author`=? WHERE `id`=?";
+    $result = $conn->execute_query($query, [$Title, $Description, $_SESSION['id'], $AnnouncementID]);
+
+    try {
+        if ($result) {
+            $Emails = [];
+            $queryemail = $conn->query("SELECT * FROM users");
+
+            while ($email = $queryemail->fetch_object()) {
+                array_push($Emails, $email->Email);
+            }
+
+            $Subject = 'ISAT Announcement Updated | ' . $Title;
+            $Message = $Description;
+
+            sendEmail($Emails, $Subject, $Message);
+
+            $response['status'] = 'success';
+            $response['message'] = 'Announcement Updated!';
+            $response['redirect'] = $_SESSION['Role'] == 'Admin' ? '../Admin/contents.php' : '../Staff/contents.php';
+        } else {
+            $response['status'] = 'error';
+            $response['message'] = 'Updating failed!';
+        }
+    } catch (Exception $e) {
+        $response['status'] = 'error';
+        $response['message'] = $e->getMessage();
+    }
+}
+if (isset($_GET['DeleteAnnouncement'])) {
+
+    $query = "DELETE FROM announcements WHERE `id` = ?";
+    try {
+        $result = $conn->execute_query($query, [$_GET['DeleteAnnouncement']]);
+        if ($result) {
+
+            $response['status'] = 'success';
+            $response['message'] = 'Announcement Deleted!';
+        } else {
+
+            $response['status'] = 'error';
+            $response['message'] = 'Delete failed!';
+        }
+    } catch (Exception $e) {
+        $response['status'] = 'error';
+        $response['message'] = $e->getMessage();
+    }
+}
 $responseJSON = json_encode($response);
 
 echo $responseJSON;

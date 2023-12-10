@@ -73,7 +73,9 @@ if (isset($_GET['PaymentNo'])) {
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="PaymentNoModalLabel">Transaction (<?= $transaction->Status ?>)</h5>
+                        <h5 class="modal-title" id="PaymentNoModalLabel">Transaction (
+                            <?= $transaction->Status ?>)
+                        </h5>
                         <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
@@ -225,6 +227,74 @@ if (isset($_GET['PaymentNo'])) {
     }
 }
 
+
+if (isset($_GET['UpdateAnnouncement'])) {
+    $result = $conn->execute_query("SELECT * FROM announcements WHERE id=?", [$_GET['UpdateAnnouncement']]);
+    while ($row = $result->fetch_object()) {
+        ?>
+        <!-- Modal -->
+        <div class="modal fade" id="UpdateAnnouncement" tabindex="-1" aria-labelledby="UpdateAnnouncementLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="UpdateAnnouncementLabel">Update Announcement</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form class="updann" action="../includes/process.php" method="POST">
+                            <div class="mb-3 row">
+                                <div class="col-lg-12 mb-3">
+                                    <label for="Title" class="form-label">Title <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="e-Title" name="Title" value="<?= $row->Title ?>"
+                                        required>
+                                </div>
+                                <div class="col-lg-12 mb-5">
+                                    <label for="Description" class="form-label">Description <span
+                                            class="text-danger">*</span></label>
+                                    <div id="quill-editor">
+                                        <?= $row->Description ?>
+                                    </div>
+                                    <input type="hidden" id="e-quill-content" name="Description" />
+                                    <script>
+                                        document.addEventListener('DOMContentLoaded', function () {
+                                            var quill = new Quill('#quill-editor', {
+                                                theme: 'snow', // or use another theme
+                                            });
+
+                                            var form = document.querySelector('.updann');
+
+                                            form.addEventListener('submit', function () {
+                                                var quillContent = quill.root.innerHTML;
+                                                document.getElementById('e-quill-content').value = quillContent;
+                                            });
+                                        });
+                                    </script>
+                                </div>
+                            </div>
+                            <div class="text-end mt-5 pt-5">
+                                <input type="hidden" name="UpdateAnnouncement" value="<?= $_GET['UpdateAnnouncement'] ?>" />
+                                <input type="hidden" name="Author" value="<?= $acc->FirstName ?> <?= $acc->LastName ?>" />
+                                <button type="button" class="btn btn-secondary" data-bs-toggle="collapse"
+                                    data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Save</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                var updateAnnouncementModal = new bootstrap.Modal(document.getElementById('UpdateAnnouncement'));
+                updateAnnouncementModal.toggle();
+                updateAnnouncementModal.show();
+            });
+        </script>
+
+        <?php
+    }
+}
 if (isset($_GET['UserID'])) {
     $result = $conn->execute_query("SELECT u.*, s.* FROM users u LEFT JOIN students s ON s.UserID = u.id WHERE u.id=?", [$_GET['UserID']]);
     $stud = $result->fetch_object();

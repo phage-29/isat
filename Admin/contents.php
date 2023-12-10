@@ -56,7 +56,7 @@ require_once "components/sidebar.php";
                                             <input type="hidden" id="quill-content" name="Description" />
                                             <script>
                                                 document.addEventListener('DOMContentLoaded', function () {
-                                                    var quill = new Quill('#quill-editor', {
+                                                    var quill = new Quill('.quill-editor-full', {
                                                         theme: 'snow', // or use another theme
                                                     });
 
@@ -85,8 +85,6 @@ require_once "components/sidebar.php";
 
                         <div class="col-12">
                             <div class="recent-sales overflow-auto">
-
-                                <h5 class="card-title">Notifications</h5>
                                 <?php
                                 $query = $conn->query("SELECT * FROM announcements ORDER BY UpdatedAt DESC");
                                 while ($row = $query->fetch_object()) {
@@ -95,15 +93,14 @@ require_once "components/sidebar.php";
                                     <h2>
                                         <?= $row->Title ?>
                                         <div class="float-end">
-                                            <button class="btn text-primary" data-bs-toggle="collapse"
-                                                data-bs-target="#collapseAddAnnouncement"
-                                                onclick="updAnnouncement('<?= $row->Title ?>','<?= $row->Description ?>')"><i
-                                                    class="bi bi-pencil-square"></i></button>
-                                            <button class="btn text-danger"><i class="bi bi-trash"></i></button>
+                                            <a href="?UpdateAnnouncement=<?= $row->id ?>" class="btn text-primary"><i
+                                                    class="bi bi-pencil-square"></i></a>
+                                            <a href="../includes/process.php?DeleteAnnouncement=<?= $row->id ?>" class="btn text-danger"><i class="bi bi-trash"></i></a>
                                         </div>
                                     </h2>
                                     <span class="text-muted">Author:
-                                        <?= $row->Author ?>
+                                        <?= $conn->query("SELECT concat(FirstName,' ',LastName) as FullName FROM users where id = $row->Author")->fetch_object()->FullName 
+?>
                                     </span>
                                     <?= $row->Description ?>
                                     <p class="text-end">
@@ -123,12 +120,6 @@ require_once "components/sidebar.php";
 
                             </div>
                         </div><!-- End Recent Sales -->
-                        <script>
-                            function updAnnouncement(title, description) {
-                                document.getElementById('Title').value = title;
-                                document.getElementById('quill-editor').innerHTML = description;
-                            }
-                        </script>
                     </div>
                 </div>
             </div>

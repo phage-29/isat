@@ -41,7 +41,8 @@ require_once "components/sidebar.php";
                                     ?>
                                     <hr>
                                     <h2><?= $row->Title ?></h2>
-                                    <span class="text-muted">Author: <?= $row->Author ?></span>
+                                    <span class="text-muted">Author: <?= $conn->query("SELECT concat(FirstName,' ',LastName) as FullName FROM users where id = $row->Author")->fetch_object()->FullName 
+?></span>
                                     <?= $row->Description ?>
                                     <p class="text-end"><?= $row->UpdatedAt ?></p>
                                     <hr>
